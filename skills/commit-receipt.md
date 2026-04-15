@@ -49,6 +49,8 @@ all_required_gates_green: true
 - Validation:
 - Review Round:
 - Latest review round:
+- Repo hook gate:
+- Repo hook receipt path:
 
 ## Completion Report
 - Path:
@@ -75,6 +77,7 @@ Include:
 - commit range considered when finalizing an existing branch tip
 - work unit or scope covered
 - gate summary
+- latest repo hook gate status and receipt path
 - notable files changed
 - validation status at commit time
 - review-round status at commit time
@@ -87,6 +90,8 @@ Include:
 
 - never rely only on the chat reply for commit evidence
 - use the latest passing gate receipts as the source of truth for gate status
+- include the latest repo hook gate receipt and whether it still matches the
+  authoritative branch tip
 - record whether any hooks or policy checks required special handling
 - if the commit is intentionally partial, say exactly what remains
 - if untracked workflow artifacts were excluded from the commit, say so explicitly

@@ -50,11 +50,22 @@ For each active worktree, inspect:
 - whether recent output contains usable evidence
 - whether the current task appears bounded
 - whether repo path, repo slug, workflow snapshot, notes, or visible links clearly indicate a company context
+- whether a fresh repo hook gate receipt exists when the current zone is
+  PR-facing or terminal on that board
 
 Treat the persisted `worktree.workflow_snapshot` as the authoritative workflow
 state. If `.agor/workflows/<worktree>/workflow-snapshot.md` exists, treat it as
 the human-readable mirror and check for divergence rather than trusting either
 surface blindly.
+
+For worktrees approaching PR-facing or agent-terminal phases, also inspect
+`.agor/workflows/<worktree>/gates/repo-hooks.md` and confirm the latest round:
+
+- exists
+- is `PASS`
+- matches the current branch tip closely enough to be trustworthy
+- reflects repo-managed hook configs or direct hook-equivalent commands rather
+  than installed `.git/hooks` alone
 
 ## MCP First Rule
 
@@ -257,6 +268,10 @@ Choose exactly one unless explicit parallelism is justified:
 - mark blocked and summarize why
 
 Do not issue vague actions like "keep going."
+
+Do not advance a worktree into a PR-facing or agent-terminal phase when the
+required repo hook gate is missing, stale, failed, or only proved installed
+`.git/hooks`.
 
 ## Daily Digest Rule
 

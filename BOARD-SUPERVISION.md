@@ -126,6 +126,14 @@ Expected zones:
 - prefer attached MCP tools over ad hoc local scripts whenever they can accomplish the task with acceptable reliability
 - fall back to local scripts or shell commands only when MCP is unavailable, blocked, or missing a needed capability
 - when falling back, record why MCP was not used
+- before advancing a worktree into a PR-facing or agent-terminal board phase,
+  require repo-specific hook evidence from `repo-hook-gate` rather than
+  assuming installed `.git/hooks` are meaningful
+- for monorepos or repos with subproject-local hook configs, require the hook
+  gate to discover and execute the repo-managed hook-equivalent commands for
+  each relevant owning directory
+- treat installed `.git/hooks` as supporting evidence only; a hook that skips
+  because config is missing does not count as success
 - if a board explicitly allows task-local commits during execution, treat those
   commits as bounded implementation artifacts rather than a replacement for any
   later finalization or human-review phase

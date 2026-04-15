@@ -551,12 +551,16 @@ Supporting lanes and rewinds:
   bounded validated work is captured in a valid local commit state, and write
   the durable handoff artifacts for Human Review
 - expected outputs: authoritative branch-tip commit SHA, concise summary, a
-  durable commit receipt artifact, a fresh completion report, and an updated
-  phase record
+  durable commit receipt artifact, a fresh completion report, a fresh repo
+  hook gate receipt, and an updated phase record
 - use `agor_workflows_finalize_phase` after `commit.md`,
   `completion-report.md`, and the phase ledger are current; the finalizer is
   the authoritative close-out path for routed `current_zone`,
   `current_work_unit`, `current_status`, and `next_phase`
+- before closing `Commit`, run `repo-hook-gate` against the repo-managed hook
+  configs or hook-equivalent commands that apply to the worktree's repo and
+  touched owning directories; do not treat installed `.git/hooks` alone as
+  sufficient evidence
 - rely on the latest passing gate receipts when the authoritative branch tip is
   already valid; rerun fresh final verification in this phase only if the phase
   creates or changes repo-side branch content that will become part of the
@@ -566,8 +570,8 @@ Supporting lanes and rewinds:
   case where the relevant commit(s) already exist from earlier implementation
   rounds
 - move out when: the branch tip commit state is valid for handoff and Human
-  Review can rely on the commit receipt and completion report without
-  reconstructing what was actually shipped
+  Review can rely on the commit receipt, completion report, and fresh repo hook
+  gate receipt without reconstructing what was actually shipped
 - if the latest passing Review Round created a review directory, `commit.md`
   must reference the latest `_meta.md` plus each unresolved `issue_*.md`, and
   `completion-report.md` must summarize those unresolved follow-up issues as
@@ -577,6 +581,9 @@ Supporting lanes and rewinds:
 
 - purpose: create or refresh the PR after human approval
 - expected outputs: PR URL, reviewer-facing PR summary, and an updated phase record
+- expected inputs: latest passing required gates, commit receipt, completion
+  report, and a fresh passing repo hook gate receipt that still matches the
+  current branch tip
 - move out when: the PR exists and active follow-up work, waiting, or closure state is clear
 
 ### PR Follow-up
@@ -593,7 +600,9 @@ Supporting lanes and rewinds:
 ### Human Review
 
 - purpose: mandatory human approval checkpoint before PR creation begins
-- expected inputs: latest passing gate receipts, commit receipt, a fresh completion report, `_decisions.md`, and any accepted ADRs that still need ratification
+- expected inputs: latest passing gate receipts, commit receipt, a fresh
+  completion report, a fresh passing repo hook gate receipt, `_decisions.md`,
+  and any accepted ADRs that still need ratification
 - expected outputs: a completion report plus a durable human-review handoff artifact summarizing readiness, proposed decisions, unresolved risks, and exact approvals needed
 - move out when: a human explicitly approves progression to `Open PR`
 - never auto-advance from this zone
@@ -633,6 +642,14 @@ Supporting lanes and rewinds:
 - use `Blocked` only when the next revision step cannot proceed because of external/runtime/access blockers, or because no defensible recommendation can be made without new external information
 - require `.agor/workflows/<worktree>/phase-record.md` to stay current during Implement and Validate so the supervisor has a durable phase ledger
 - keep `.agor/workflows/<worktree>/phase-record.md` current through Review Round, Commit, Human Review, Open PR, and PR Follow-up as well, so late-phase state is durable and auditable
+- before routing a worktree into `Human Review` or `Open PR`, require a fresh
+  passing `.agor/workflows/<worktree>/gates/repo-hooks.md` round produced by
+  `repo-hook-gate`
+- for monorepos or multi-package repos, the repo hook gate must discover and
+  run the repo-managed hook-equivalent commands for the relevant owning
+  directories instead of assuming one root hook config covers everything
+- installed `.git/hooks` are supporting evidence only; they do not satisfy the
+  Heavy hook requirement by themselves
 - for Heavy execution, treat task-file frontmatter plus the task file
   `## Execution Record` as the authoritative per-unit execution-state ledger
 - when an implementation round ends `ready_for_validation`, the immediate next
@@ -681,10 +698,12 @@ Primary tools:
 8. The `Commit` phase begins only after all required gates pass and must write
    a commit receipt artifact for the authoritative branch-tip commit state,
    whether or not a new commit was created in that phase.
-9. Commit must also write or refresh the completion report before Human Review.
-10. Human Review is mandatory after Commit and before Open PR, and must write a durable handoff artifact.
-11. Open PR begins only after a valid commit exists, required gate receipts are present, a fresh completion report exists, and a human has approved PR progression.
-12. PR Follow-up should classify the live PR state explicitly before routing to another phase.
+9. `Commit` must also run `repo-hook-gate` and write or refresh the repo hook
+   gate receipt before Human Review.
+10. Commit must also write or refresh the completion report before Human Review.
+11. Human Review is mandatory after Commit and before Open PR, and must write a durable handoff artifact.
+12. Open PR begins only after a valid commit exists, required gate receipts are present, a fresh completion report exists, a fresh passing repo hook gate receipt exists, and a human has approved PR progression.
+13. PR Follow-up should classify the live PR state explicitly before routing to another phase.
 
 ## Gate Failure Routing
 
@@ -702,6 +721,9 @@ Primary tools:
 - `Human Review` never auto-transitions; movement to `Open PR` requires explicit human approval
 - require the completion report before entering `Human Review`
 - require the latest phase record before entering `Human Review`
+- require the latest passing repo hook gate receipt before entering `Human Review`
+- require the latest passing repo hook gate receipt to still match the current
+  branch tip before `Open PR`
 
 ## Frontend Runtime Marker
 

@@ -106,7 +106,9 @@ should not be treated as the authoritative workflow state.
 ### Ready for Review
 
 - purpose: agent-complete lane for work that is ready for human inspection or optional shipping steps
-- move in only when: a completion report exists and reflects the latest validation / QA / review evidence
+- move in only when: a completion report exists and reflects the latest
+  validation / QA / review evidence, and a fresh passing repo hook gate receipt
+  exists for the current branch tip
 
 ## Transition Rules
 
@@ -146,6 +148,15 @@ should not be treated as the authoritative workflow state.
 - once `Review` is `APPROVED`, it should also write or refresh `.agor/workflows/<worktree>/completion-report.md` before the worktree moves to `Ready for Review`
 - if the review says any change should be made before PR or human review, the verdict must be `CHANGES_REQUESTED`, not `APPROVED`
 - `Ready for Review` also requires the final completion report, the latest phase ledger, the latest review receipt, and, for runtime-visible `frontend-web` work, the explicit frontend runtime marker
+- before `Ready for Review`, run `repo-hook-gate` and require a fresh passing
+  `.agor/workflows/<worktree>/gates/repo-hooks.md` round for the current branch
+  tip
+- for monorepos or repos with per-subproject hook configs, the repo hook gate
+  must discover and execute the repo-managed hook-equivalent commands for the
+  relevant owning directories instead of assuming one root config covers the
+  repo
+- installed `.git/hooks` are advisory only and do not satisfy the Light hook
+  requirement by themselves
 - if the task was revised or re-reviewed after an older completion report already existed, generate a fresh completion report before moving to `Ready for Review`
 
 ## Frontend Runtime Marker

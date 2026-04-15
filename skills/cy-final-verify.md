@@ -43,6 +43,9 @@ Before `Commit`, this skill should confirm:
 - latest review round artifacts are internally consistent
 - the repo verification pipeline has been rerun after the last meaningful code
   change
+- the repo hook gate was run fresh enough for the current branch tip, using
+  repo-managed hook configs or direct hook-equivalent commands rather than
+  assuming installed `.git/hooks` are meaningful
 - the claim scope does not exceed the evidence scope
 
 ## Required Reporting Shape

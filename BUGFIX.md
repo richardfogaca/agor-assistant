@@ -122,6 +122,9 @@ the same way `delivery-heavy-core` aligns Delivery Heavy sessions.
 
 - purpose: optional shipping lane for bugfixes that should leave the board as a pull request
 - move in when: code review passed and the human or assistant explicitly chooses to start PR work
+- expected inputs: latest passing verify and code-review evidence, completion
+  report when present, and a fresh passing repo hook gate receipt for the
+  current branch tip
 - move out when: the PR is opened, linked, and ready for follow-up
 - for now: keep this zone manual; do not auto-enter it from `Verify`
 
@@ -140,7 +143,9 @@ the same way `delivery-heavy-core` aligns Delivery Heavy sessions.
 ### Ready for Review
 
 - purpose: agent-complete lane for a verified bugfix that is ready for human review or optional PR work
-- move in only when: a completion report exists and reflects the latest `Verify` and `Code Review` evidence
+- move in only when: a completion report exists and reflects the latest
+  `Verify` and `Code Review` evidence, and a fresh passing repo hook gate
+  receipt exists for the current branch tip
 
 ## Transition Rules
 
@@ -238,6 +243,15 @@ the same way `delivery-heavy-core` aligns Delivery Heavy sessions.
 - `Verify` should also write or update `.agor/workflows/<worktree>/phase-record.md`
 - `Verify` should make regression confidence explicit in the gate receipt:
   - `regression_risk: low | medium | high`
+- before `Ready for Review` or `Open PR`, run `repo-hook-gate` and require a
+  fresh passing `.agor/workflows/<worktree>/gates/repo-hooks.md` round for the
+  current branch tip
+- for monorepos or repos with per-subproject hook configs, the repo hook gate
+  must discover and execute the repo-managed hook-equivalent commands for the
+  relevant owning directories instead of assuming one root config covers the
+  repo
+- installed `.git/hooks` are advisory only and do not satisfy the Bugfix hook
+  requirement by themselves
   - `original_invariant_preserved: yes | no`
   - `material_unverified_side_effects: true | false`
 - `Verify` should not pass while regression risk is still `medium` or `high`
