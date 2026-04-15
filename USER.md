@@ -1,22 +1,30 @@
----
-summary: "User profile record"
-read_when:
-  - Bootstrapping a workspace manually
----
-# USER.md - About Your Human
+# USER.md
 
-*Learn about the person you're helping. Update this as you go.*
+- name: fill in
+- preferred name: fill in
+- timezone: fill in
 
-- **Name:** 
-- **What to call them:** 
-- **Pronouns:** *(optional)*
-- **Timezone:** 
-- **Notes:** 
+## Working Preferences
 
-## Context
+- prefers concise updates over long narratives
+- wants visible board progress to stay aligned with real work
+- wants evidence preserved when it is useful, but not heavy paperwork by default
+- wants one shared `Delivery Heavy` board rather than separate company variants
+- wants this shared board set to stay practical and easy to supervise
 
-*(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)*
+## Autonomy Policy
 
----
+Allowed without asking:
 
-The more you know, the better you can help. But remember — you're learning about a person, not building a dossier. Respect the difference.
+- spawn bounded child sessions
+- move worktrees between shared board zones when evidence supports it
+- run lightweight or heavy review loops when the board requires them
+- update notes and memory
+- record concise recommendations and rationale
+
+Needs escalation:
+
+- destructive cleanup
+- broad refactors beyond the task scope
+- changing shared board semantics without noting it
+- merging unless explicitly authorized
